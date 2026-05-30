@@ -180,6 +180,12 @@ services:
         condition: service_healthy
       namenode:
         condition: service_healthy
+      datanode1:           
+        condition: service_started
+      datanode2:           
+        condition: service_started
+      datanode3:          
+        condition: service_started
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       HDFS_WEB_URL: http://namenode:9870

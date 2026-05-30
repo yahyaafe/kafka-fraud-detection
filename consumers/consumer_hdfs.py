@@ -19,19 +19,26 @@ def create_hdfs_client():
     for attempt in range(1, HDFS_CONNECT_RETRIES + 1):
         try:
             client = InsecureClient(HDFS_WEB_URL, user="root")
-            # Probe the connection with a simple status call
             client.status("/")
             print(f"Connected to HDFS at {HDFS_WEB_URL}")
             return client
         except Exception as exc:
-            print(f"HDFS not ready yet ({attempt}/{HDFS_CONNECT_RETRIES}): {exc}")
+            print(
+                f"HDFS not ready yet "
+                f"({attempt}/{HDFS_CONNECT_RETRIES}): {exc}"
+            )
             time.sleep(HDFS_CONNECT_WAIT)
-    raise RuntimeError(f"Could not connect to HDFS after {HDFS_CONNECT_RETRIES} attempts")
+
+    raise RuntimeError(
+        f"Could not connect to HDFS after "
+        f"{HDFS_CONNECT_RETRIES} attempts"
+    )
 
 
 def ensure_hdfs_dir(client, path):
     """Create parent directory in HDFS if it doesn't exist."""
     parent = os.path.dirname(path)
+
     if parent and parent != "/":
         client.makedirs(parent)
 
@@ -46,13 +53,14 @@ consumer = KafkaConsumer(
     auto_offset_reset="earliest",
     enable_auto_commit=True,
     group_id="consumer-hdfs",
-    value_deserializer=lambda value: json.loads(value.decode("utf-8")),
+    value_deserializer=lambda value: json.loads(
+        value.decode("utf-8")
+    ),
 )
 
 print(f"HDFS Consumer listening on topic '{TOPIC_NAME}' → writing to {HDFS_OUTPUT_PATH}")
 
 # --- Main loop ---
-# Open one persistent HDFS append stream instead of reopening on every message
 BATCH_SIZE = int(os.getenv("HDFS_BATCH_SIZE", "50"))
 buffer = []
 
