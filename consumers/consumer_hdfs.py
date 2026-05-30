@@ -70,6 +70,14 @@ for message in consumer:
 
     if len(buffer) >= BATCH_SIZE:
         payload = "\n".join(buffer) + "\n"
+        
+        # --- SÉCURITÉ : Crée le fichier vide s'il n'existe pas encore ---
+        if hdfs_client.content(HDFS_OUTPUT_PATH, strict=False) is None:
+            with hdfs_client.write(HDFS_OUTPUT_PATH, encoding="utf-8") as writer:
+                writer.write("")
+            print(f"Initial file created at {HDFS_OUTPUT_PATH}")
+        # --------------------------------------------------------------
+
         with hdfs_client.write(HDFS_OUTPUT_PATH, append=True, encoding="utf-8") as writer:
             writer.write(payload)
         print(f"Flushed {len(buffer)} orders to HDFS (last InvoiceNo: {order.get('InvoiceNo', '')})")
