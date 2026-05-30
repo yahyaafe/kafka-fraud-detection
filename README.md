@@ -215,15 +215,15 @@ docker compose logs -f
 ### Linux / Mac
 
 ```bash
-docker compose exec kafka kafka-console-producer \
---broker-list kafka:29092 \
---topic ecommerce-orders
+docker compose exec kafka1 kafka-console-producer \
+  --broker-list kafka1:29092,kafka2:29092,kafka3:29092 \
+  --topic ecommerce-orders
 ```
 
 ### Windows PowerShell
 
 ```powershell
-docker compose exec kafka kafka-console-producer --broker-list kafka:29092 --topic ecommerce-orders
+docker compose exec kafka kafka-console-producer --broker-list kafka1:29092,kafka2:29092,kafka3:29092 --topic ecommerce-orders
 ```
 
 ---

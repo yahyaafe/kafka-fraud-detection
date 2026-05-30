@@ -8,9 +8,9 @@ volumes:
   hadoop_datanode_1:
   hadoop_datanode_2:
   hadoop_datanode_3:
-  kafka_data_1:
-  kafka_data_2:
-  kafka_data_3:
+  kafka_data_1:        
+  kafka_data_2:        
+  kafka_data_3: 
 
 services:
   zookeeper:
@@ -131,6 +131,10 @@ services:
       - kafka-network
     depends_on:
       kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
         condition: service_healthy
     ports:
       - "8080:8080"
