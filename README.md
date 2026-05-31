@@ -223,7 +223,7 @@ docker compose exec kafka1 kafka-console-producer \
 ### Windows PowerShell
 
 ```powershell
-docker compose exec kafka kafka-console-producer --broker-list kafka1:29092,kafka2:29092,kafka3:29092 --topic ecommerce-orders
+docker compose exec kafka1 kafka-console-producer --broker-list kafka1:29092,kafka2:29092,kafka3:29092 --topic ecommerce-orders
 ```
 
 ---
@@ -231,7 +231,7 @@ docker compose exec kafka kafka-console-producer --broker-list kafka1:29092,kafk
 ## Envoyer une transaction normale
 
 ```json
-{"InvoiceNo":"TESTNORMAL001","StockCode":"ITEM01","Description":"NORMAL ORDER","Quantity":2,"InvoiceDate":"12/1/2010 10:30","UnitPrice":5.99,"CustomerID":"20001","Country":"France"}
+{"InvoiceNo":"XXXXXX1","StockCode":"ITEM01","Description":"NORMAL ORDER","Quantity":2,"InvoiceDate":"12/1/2010 10:30","UnitPrice":5.99,"CustomerID":"20001","Country":"Maroc"}
 ```
 
 ---
@@ -239,7 +239,7 @@ docker compose exec kafka kafka-console-producer --broker-list kafka1:29092,kafk
 ## Envoyer une transaction frauduleuse
 
 ```json
-{"InvoiceNo":"TESTFRAUD001","StockCode":"LUXE01","Description":"VERY HIGH VALUE ORDER","Quantity":500,"InvoiceDate":"12/1/2010 23:59","UnitPrice":999.99,"CustomerID":"99999","Country":"Brazil"}
+{"InvoiceNo":"MMMMMMMM2","StockCode":"LUXE01","Description":"VERY HIGH VALUE ORDER","Quantity":500,"InvoiceDate":"12/1/2010 23:59","UnitPrice":999.99,"CustomerID":"99999","Country":"Maroc"}
 ```
 
 ---
@@ -260,17 +260,55 @@ CTRL + C
 
 ---
 
-# 🔍 Vérifier les Logs du Détecteur
+# 📡 Surveillance en Temps Réel (Fraud Detector)
 
-## Vérifier la transaction normale
+## Observer les logs du détecteur en direct
+
+> Ouvrir un terminal dédié et laisser tourner pendant les tests.
 
 ### Linux / Mac
+
+```bash
+docker compose logs -f fraud-detector
+```
+
+### Windows PowerShell
+
+```powershell
+docker compose logs -f fraud-detector
+```
+
+---
+
+## Voir les résultats scorés dans Kafka UI
+
+Ouvrir dans le navigateur :
+
+```
+http://localhost:8085
+```
+
+Navigation : **Topics → ecommerce-scored-orders → Messages → Live Tail**
+
+Chaque message contient :
+- `"is_fraud": false` → transaction normale ✅
+- `"is_fraud": true` → transaction frauduleuse 🚨
+- `"anomaly_score"` → score de suspicion (plus négatif = plus suspect)
+- `"prediction"` → `1` = normal, `-1` = anomalie
+
+---
+
+## Vérifier une transaction spécifique dans les logs
+
+### Vérifier la transaction normale
+
+#### Linux / Mac
 
 ```bash
 docker compose logs fraud-detector | grep TESTNORMAL001
 ```
 
-### Windows PowerShell
+#### Windows PowerShell
 
 ```powershell
 docker compose logs fraud-detector | Select-String "TESTNORMAL001"
@@ -278,21 +316,19 @@ docker compose logs fraud-detector | Select-String "TESTNORMAL001"
 
 ---
 
-## Vérifier la transaction frauduleuse
+### Vérifier la transaction frauduleuse
 
-### Linux / Mac
+#### Linux / Mac
 
 ```bash
 docker compose logs fraud-detector | grep TESTFRAUD001
 ```
 
-### Windows PowerShell
+#### Windows PowerShell
 
 ```powershell
 docker compose logs fraud-detector | Select-String "TESTFRAUD001"
 ```
-
----
 
 
 # 📈 Résultats
