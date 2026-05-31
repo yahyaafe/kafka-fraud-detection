@@ -6,10 +6,11 @@ from datetime import datetime
 
 import joblib
 import pandas as pd
-from kafka import KafkaConsumer
+from kafka import KafkaConsumer, KafkaProducer
 
 
 TOPIC_NAME = os.getenv("KAFKA_TOPIC", "ecommerce-orders")
+OUTPUT_TOPIC_NAME = os.getenv("KAFKA_OUTPUT_TOPIC", "ecommerce-scored-orders")
 KAFKA_SERVER = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:29092")
 MODEL_OUTPUT_PATH = os.getenv("MODEL_OUTPUT_PATH", "/app/models/fraud_detection_pipeline.pkl")
 MODEL_WAIT_TIMEOUT = int(os.getenv("MODEL_WAIT_TIMEOUT", "180"))
@@ -25,6 +26,21 @@ def create_consumer():
         group_id="fraud-detector",
         value_deserializer=lambda value: json.loads(value.decode("utf-8")),
     )
+
+
+def create_producer():
+    for attempt in range(1, 11):
+        try:
+            return KafkaProducer(
+                bootstrap_servers=KAFKA_SERVER,
+                acks="all",
+                key_serializer=lambda key: str(key).encode("utf-8"),
+                value_serializer=lambda value: json.dumps(value).encode("utf-8"),
+            )
+        except Exception as exc:
+            print(f"Kafka Producer not ready yet ({attempt}/10): {exc}")
+            time.sleep(5)
+    raise RuntimeError("Could not connect to Kafka for producing results")
 
 
 def wait_for_model_bundle():
@@ -218,9 +234,11 @@ def main():
     pipeline = model_bundle["pipeline"]
     feature_columns = model_bundle["numeric_features"] + model_bundle["categorical_features"]
     consumer = create_consumer()
+    producer = create_producer()
     invoice_states = {}
 
     print(f"Fraud detector listening on topic '{TOPIC_NAME}' via {KAFKA_SERVER}")
+    print(f"Publishing scored results to topic '{OUTPUT_TOPIC_NAME}'")
 
     for message in consumer:
         order = message.value
@@ -246,6 +264,12 @@ def main():
             print(f"FRAUD ALERT: {json.dumps(result)}")
         else:
             print(f"Order scored: {json.dumps(result)}")
+
+        # Send results back to Kafka output topic
+        try:
+            producer.send(OUTPUT_TOPIC_NAME, key=result["InvoiceNo"], value=result)
+        except Exception as e:
+            print(f"Error publishing scored transaction to Kafka: {e}")
 
         update_reference_maps(order, model_bundle, invoice_states)
 
