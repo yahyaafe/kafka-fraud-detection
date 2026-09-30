@@ -1,5 +1,3 @@
-# 🚀 Kafka Fraud Detection System
-
 # Kafka Fraud Detection System 🚀
 
 Projet de détection de fraude en temps réel avec **Apache Kafka**, **Machine Learning**, **Docker**, et **HDFS**.
@@ -76,7 +74,7 @@ KAFKA_PROJECT/
 - Joblib
 
 ---
-# 🚀 Kafka Fraud Detection Project (Spark + ML)
+## Architecture streaming et Machine Learning
 
 Ce projet détecte des fraudes à partir de données e-commerce en utilisant :
 - Apache Spark (data processing)
@@ -86,7 +84,7 @@ Ce projet détecte des fraudes à partir de données e-commerce en utilisant :
 
 ---
 
-# 🧠 IMPORTANT
+## Exécution
 
 Deux façons d’exécuter le projet :
 
@@ -111,15 +109,15 @@ Deux façons d’exécuter le projet :
 ### Linux / Mac
 
 ```bash
-git clone https://github.com/ayoubaoubid/kafka-project.git
-cd kafka-project
+git clone https://github.com/yahyaafe/kafka-fraud-detection.git
+cd kafka-fraud-detection
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-git clone https://github.com/ayoubaoubid/kafka-project.git
-cd kafka-project
+git clone https://github.com/yahyaafe/kafka-fraud-detection.git
+cd kafka-fraud-detection
 ```
 
 ---
@@ -342,9 +340,9 @@ Le projet génère :
 
 ---
 
-# 👨‍💻 Auteur
+# 👨‍💻 Contexte et contribution
 
-Projet réalisé par : Groupe 3
+Projet académique collaboratif réalisé par le Groupe 3. Cette copie est préparée pour présenter la contribution de Yahya Aferdi aux sujets Kafka, traitement temps réel, machine learning et Docker, tout en conservant l'attribution collective de l'historique.
 
 # git
 
@@ -368,4 +366,4 @@ git push origin feature/nouvelle-feature
 
 # 📜 Licence
 
-Ce projet est sous licence Iasd.
+Aucune licence explicite n'est actuellement déclarée dans ce dépôt.
